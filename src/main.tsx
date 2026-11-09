@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Calculator, ChartNoAxesColumnIncreasing, FileText, Lightbulb, Plus, Trash2, Pencil, ChevronDown, Info, Mail, CalendarDays, Target, ReceiptText } from 'lucide-react'
+import { Calculator, ChartNoAxesColumnIncreasing, FileText, Lightbulb, Plus, Trash2, Pencil, ChevronDown, Info, Mail, CalendarDays, Target, House, ShoppingCart, Coins } from 'lucide-react'
 import { annualCost, calculate, days, euro, kinds, notice, number, removeCost, rhythms, validAmount } from './model.ts'
 import type { Cost, Kind, Model, Rhythm } from './model.ts'
 import { load, save } from './storage.ts'
-import workplace from './workspace.webp'
 import './style.css'
 
 const navigation = [
@@ -128,16 +127,13 @@ function App() {
     </header>
 
     <main>
-      <header className="hero" id="kalkulator">
-        <div><p className="eyebrow">FINANZPLANUNG FÜR SELBSTSTÄNDIGE</p>
-          <h1>Business Kalkulator</h1>
-          <p>Erfasse deine Betriebskosten und finde heraus, welchen Umsatz du pro Arbeitstag für dein Gewinnziel brauchst.</p>
-        </div>
-        <img src={workplace} alt="" width="450" height="220" />
-      </header>
       {storageError && <p role="alert">Lokale Daten konnten nicht geladen oder gespeichert werden.</p>}
       <div className="dashboard">
-        <div className="inputs">
+        <div className="inputs" id="kalkulator">
+          <header className="calculator-heading">
+            <h1>Kenne deine Kosten. Plane deinen Umsatz.</h1>
+            <p>Erfasse deine betrieblichen Kosten, lege dein Gewinnziel fest und sieh, wie viel Umsatz du pro Arbeitstag erzielen solltest.</p>
+          </header>
           <section className="panel setup" aria-label="Gewinnziel und Arbeitstage">
             <div><h2><Target size={19} aria-hidden="true" /> Gewünschter Gewinn</h2>
               <div className="goal"><Amount label="Gewinnziel in Euro" value={model.goal} onChange={goal => patch({ goal })} />
@@ -158,16 +154,22 @@ function App() {
             </div>
           </section>
 
-          <section className="panel costs">
-            <h2><ReceiptText size={20} aria-hidden="true" /> Betriebskosten</h2>
-            <p>Erfasse jede Ausgabe einmal.</p>
-            {(['fixed', 'variable'] as const).map(kind => <details key={kind} className="cost-group">
-              <summary><strong>{kinds[kind]}</strong><ChevronDown size={18} aria-hidden="true" /></summary>
+          {(['fixed', 'variable'] as const).map(kind => {
+            const Icon = kind === 'fixed' ? House : ShoppingCart
+            const costs = model.costs.filter(cost => cost.standard && cost.kind === kind)
+            return <section key={kind} className="panel costs">
+              <h2><Icon size={26} aria-hidden="true" /> {kinds[kind]}</h2>
               <p className="hint"><Info size={16} aria-hidden="true" />{kind === 'fixed'
                 ? 'Regelmäßige Kosten, die auch dann anfallen, wenn du keine Kunden hast.'
                 : 'Kosten, die sich verändern, wenn du mehr oder weniger Leistungen erbringst.'}</p>
-              <ul>{model.costs.filter(cost => cost.standard && cost.kind === kind).map(renderCost)}</ul>
-            </details>)}
+              <ul className="cost-preview">{costs.slice(0, 3).map(renderCost)}</ul>
+              <details className="cost-group">
+                <summary><strong>Weitere {kinds[kind]}</strong><ChevronDown size={18} aria-hidden="true" /></summary>
+                <ul>{costs.slice(3).map(renderCost)}</ul>
+              </details>
+            </section>
+          })}
+          <section className="panel costs">
             <details className="cost-group" ref={customGroup}>
               <summary><strong>Eigene Kostenpositionen</strong><ChevronDown size={18} aria-hidden="true" /></summary>
               {customCosts.length ? <ul>{customCosts.map(renderCost)}</ul> : <p>Hier erscheinen deine zusätzlich erfassten Ausgaben.</p>}
@@ -180,15 +182,18 @@ function App() {
         <div className="outputs">
           <section id="ergebnis" tabIndex={-1} className="results" aria-labelledby="result-title">
             <div className="total" aria-live="polite">
-              <p className="eyebrow">DEIN UMSATZZIEL</p>
               <h2 id="result-title">Dein erforderlicher Mindestumsatz pro Arbeitstag</h2>
               <strong>{euro(result.revenue.workday)}</strong>
-              <p>Diesen Betrag musst du im Schnitt pro Arbeitstag einnehmen, um deine Kosten zu decken und dein Gewinnziel zu erreichen.</p>
             </div>
             <div className="panel breakdown">
               <h2>So setzt sich dein Ziel zusammen</h2>
-              <dl><div><dt>Gesamtkosten pro Arbeitstag</dt><dd>{euro(result.costs.workday)}</dd></div>
-                <div><dt>Gewünschter Gewinn pro Arbeitstag</dt><dd>{euro(result.goal.workday)}</dd></div></dl>
+              <dl><div><dt><Coins size={19} aria-hidden="true" /> Gesamtkosten pro Arbeitstag</dt><dd>{euro(result.costs.workday)}</dd></div>
+                <div><dt><Target size={19} aria-hidden="true" /> Gewünschter Gewinn pro Arbeitstag</dt><dd>{euro(result.goal.workday)}</dd></div>
+                <div><dt><CalendarDays size={19} aria-hidden="true" /> Erforderlicher Monatsumsatz</dt><dd>{euro(result.revenue.month)}</dd></div></dl>
+            </div>
+            <div className="panel meaning">
+              <h2><Lightbulb size={22} aria-hidden="true" /> Das bedeutet für dein Business</h2>
+              <p>Mit diesem Tagesumsatz kannst du deine erfassten Kosten decken und dein gewünschtes Gewinnziel erreichen.</p>
             </div>
             <div className="panel breakdown periods">
               <h2>Kosten und Mindestumsatz</h2>

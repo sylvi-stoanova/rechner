@@ -23,6 +23,3 @@ Mit `npm test` laufen die automatisierten Berechnungstests. `npm run build` erze
 GitHub Actions übernimmt den Basispfad aus den Pages-Einstellungen. Ein Projekt-Repository läuft beispielsweise unter `https://benutzername.github.io/rechner/`, eine Benutzerwebsite unter `https://benutzername.github.io/`. Die Navigation verwendet Abschnittslinks innerhalb der Seite.
 
 Für einen lokalen Build mit Projektpfad kannst du in PowerShell `$env:PAGES_BASE_PATH = '/rechner/'` setzen und dann `npm run build` und `npm run preview` ausführen. Verwende dabei den tatsächlichen Repository-Namen einschließlich Groß- und Kleinschreibung.
-## Bildnachweis
-
-Das Arbeitsplatzfoto von [Mikey Harris](https://unsplash.com/photos/macbook-pro-beside-green-plant-on-table-qVnyj4NYLZs) ist als optimiertes WebP in `src/workspace.webp` eingebunden. Die [Unsplash-Lizenz](https://unsplash.com/license) erlaubt die kommerzielle Nutzung und Bearbeitung. Der Verkauf unveränderter Fotos und der Aufbau eines konkurrierenden Bilddienstes sind ausgenommen.
